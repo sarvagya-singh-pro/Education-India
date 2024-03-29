@@ -1,6 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import { NextRequest,NextResponse } from "next/server";
 import bcryptjs from "bcryptjs";
+import {sendEmail} from '@/helper/mailer'
+import jwt from "jsonwebtoken";
 const prisma = new PrismaClient();
 
 export async function POST(request){
@@ -11,6 +13,7 @@ export async function POST(request){
         const reqBody = await request.json()
         const { name,email, password} = reqBody
         console.log(reqBody)
+            
         const user = await prisma.user.findUnique({
             where: {
               email,
@@ -19,17 +22,35 @@ export async function POST(request){
        if(!user){
         const salt = await bcryptjs.genSalt(10)
         const hashedPassword = await bcryptjs.hash(password, salt)
-
-        await prisma.user.create({
+        
+        const user=await prisma.user.create({
             data:{
+            
             email:email,
             name:name,
             password:hashedPassword
             }
             
+            
         })
+        const tokenData = {
+            id: user.id,
+            name: user.name,
+            email: user.email
+        }   
+        const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET, {expiresIn: "14d"})
+        
+        const response=NextResponse.json({
+            message: "Sign Up successful",
+            success: true,
+        });
+         response.cookies.set("token", token, {
+            httpOnly: true, 
+            
+        })
+        await sendEmail({email,emailType:'verify',userId:user.id})
                 
-        return NextResponse.json({"ok":200})
+        return response
 
        }
        else{
