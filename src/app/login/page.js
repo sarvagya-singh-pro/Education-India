@@ -4,6 +4,7 @@ import axios from "axios";
 const page = () => {
     const[email,SetEmail]=useState("")
     const[password,SetPassword]=useState("")
+    const[verify,SetVerify]=useState("")
     return (
         <div>
             <h1>Login</h1>
@@ -16,7 +17,17 @@ const page = () => {
                     password
                 })
             }}  >Login</button>
-            <button >SignUp</button>
+            <button onClick={()=>{
+                axios.post('/api/users/forgot',{email})
+            }}>
+                forgot
+            </button>
+            <input value={verify} onChange={(e)=>{SetVerify(e.target.value)}}></input>
+            <button onClick={()=>{axios.post('/api/users/verify',{
+                    "type":"forgot",
+                    "tokenGiven":verify,
+                    "email":email,
+                })}} >verify</button>
         </div>
     );
 }

@@ -24,6 +24,7 @@ const page = () => {
             }} >SignUp</button>
             <button  onClick={()=>{
                 axios.post('/api/users/verify',{
+                    "type":"verify",
                     verify
                 })}} >
                     Verify

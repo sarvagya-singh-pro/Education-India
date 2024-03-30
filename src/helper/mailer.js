@@ -1,14 +1,14 @@
 import nodemailer from 'nodemailer';
 import bcryptjs from 'bcryptjs';
 import { NextRequest } from "next/server";
-import jwt from "jsonwebtoken";
-import { cookies } from 'next/headers'
+const crypto = require('crypto');
 import { PrismaClient } from '@prisma/client';
 export const sendEmail = async({email, emailType, userId}) => {
     const prisma = new PrismaClient()
     try {
         // create a hased token
-        const hashedToken = await bcryptjs.hash(userId.toString(), 10)
+        const hashedToken = crypto.randomInt(100000, 999999);
+        
 
         if (emailType === "verify") {
             await prisma.user.update({
@@ -22,8 +22,15 @@ export const sendEmail = async({email, emailType, userId}) => {
               });
           
         } else if (emailType === "ForgotPassword"){
-            await User.findByIdAndUpdate(userId, 
-                {forgotPasswordToken: hashedToken, forgotPasswordTokenExpiry: Date.now() + 3600000})
+            await prisma.user.update({
+                where: {
+                  id: userId
+                },
+                data: {
+                    forgotPasswordExpiration:new Date(new Date() + 3600000),
+                    forgotPasswordString:hashedToken.toString(),
+                }
+              });
         }
 
         var transport = nodemailer.createTransport({
@@ -40,9 +47,7 @@ export const sendEmail = async({email, emailType, userId}) => {
             from: 'singhsarvagya260508@example.com',
             to: 'singhsarvagya260508@gmail.com',
             subject: emailType === "verify" ? "Verify your email" : "Reset your password",
-            html: `<p>Click <a href="${process.env.DOMAIN}/verifyemail?token=${hashedToken}">here</a> to ${emailType === "Verify" ? "verify your email" : "reset your password"}
-            or copy and paste the link below in your browser. <br> ${process.env.DOMAIN}/verifyemail?token=${hashedToken}
-            </p>`
+            html: `token=${hashedToken} `
         }
 
         const mailresponse = await transport.sendMail
