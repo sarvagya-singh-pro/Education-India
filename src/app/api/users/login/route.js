@@ -1,21 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcryptjs, { compareSync } from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient()
+import prisma from "@/app/database/prisma";
 export async function POST(request) {
     try {
 
         const reqBody = await request.json()
-        const { email, password } = reqBody
+        const { phone, password } = reqBody
+        console.log(phone)
         const user = await prisma.user.findUnique({
             where: {
-                email,
+                phone:phone,
             },
         })
         if (!user) {
-            return NextResponse.json({ error: "User does not exist" }, { status: 400 })
             console.log("User does not exist")
+            return NextResponse.json({ error: "User does not exist" }, { status: 400 })
+            
         }
         else {
             const validPassword = await bcryptjs.compare(password, user.password)
@@ -38,14 +39,16 @@ export async function POST(request) {
                 return response
             }
             else {
+                console.log("password galat hai")
                 return NextResponse.json({ "Wrong Password": "Bad Request" }, { status: 400 })
             }
         }
         console.log(reqBody)
     }
     catch (err) {
-        return NextResponse.json({ "internal Server Error": err }, { status: 500 })
         console.log(err)
+        return NextResponse.json({ "internal Server Error": err }, { status: 500 })
+        
     }
 
 }

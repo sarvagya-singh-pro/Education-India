@@ -1,16 +1,12 @@
-import prisma from "@/app/database/prisma"
-import { NextResponse } from "next/server"
-
-export async function GET() {
-
-    const user=prisma.user.findUnique({
-        where:{
-            
+import { NextResponse } from "next/server";
+import prisma from "@/app/database/prisma";
+export  async function GET() {
+        try {
+            const universities = await prisma.university.findMany();
+            console.log("ok")
+            return NextResponse.json(universities);
+        } catch (error) {
+            console.error(error);
+            return NextResponse.json({ message: 'Internal Server Error' });
         }
-    })
-    console.log(user)
-
-    NextResponse.json({"ok":200})
-
-
 }

@@ -1,18 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-generator client {
-  provider = "prisma-client-js"
-}
+
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  password String
-  verified Boolean @default(false)
-  forgotPasswordString String?
+  id                       Int       @id @default(autoincrement())
+  name                     String?
+  verified                 Boolean   @default(false)
+  forgotPasswordString     String?
   forgotPasswordExpiration DateTime?
-  verifyTokenString String?
-  verifyTokenExpiration DateTime?
+  verifyTokenString        String?
+  verifyTokenExpiration    DateTime?
+  password                 String
+  phone                    String    @unique
+}
+
+model university {
+  id                      Int     @id @default(autoincrement())
+  college_name            String? @db.VarChar(255)
+  is_private              String? @db.VarChar(3)
+  num_apps                Int?
+  num_accepted            Int?
+  num_enrolled            Int?
+  top10perc               Int?
+  top25perc               Int?
+  num_full_time_undergrad Int?
+  num_part_time_undergrad Int?
+  out_state_cost          Int?
+  room_board_cost         Int?
+  books_cost              Int?
+  personal_cost           Int?
+  phd_percentage          Int?
+  terminal_percentage     Int?
+  student_faculty_ratio   Float?
+  alumni_percentage       Int?
+  expenditure             Int?
+  grad_rate               Int?
 }

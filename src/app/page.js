@@ -1,9 +1,10 @@
-import React from 'react'
+"use client"
+import Profile from '@/components/Dashboard'
+export default function page() {
 
-const page = () => {
-    return (
-        <h1 className='center text-center font-extrabold text-4xl'>page</h1>
-    )
+  return (
+    <>
+    <h1>Hello User!</h1>
+    </>     
+);
 }
-
-export default page

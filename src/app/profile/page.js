@@ -1,23 +1,13 @@
 "use client"
-import { useEffect } from "react";
-import prisma from "../database/prisma";
+import '@mantine/core/styles.css';
+import { Button } from "@mantine/core";
 import axios from "axios";
-export default () => {
-    useEffect(()=>{
-        async function a(){
-        await  axios.get('/api/users/profile')
-
-        }
-        a()
-        
-    },[])
+const page = () => {
     return (
         <div>
-            Profile
-            <button onClick={async ()=>{
-               await axios.get('api/users/logout')
-               window.location.reload()
-            }}>Logout</button>
+            <Button color='red' onClick={()=>{axios.get('/api/users/logout')}}>Logout</Button>
         </div>
     );
 }
+
+export default page;

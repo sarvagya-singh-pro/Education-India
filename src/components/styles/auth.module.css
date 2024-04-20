@@ -1,0 +1,27 @@
+.signup{
+    position: absolute;
+    width: 50%;
+    height: 100vh;
+    background: linear-gradient(#fff,#f3f3f3);
+}
+.sideImg{
+    width: 50%;
+    height: 100vh;
+    background: #3468e0;
+    float: right;
+}
+.title{
+    display: inline-block;
+    padding-bottom: 10px;
+    position: relative;
+    
+}
+.title:before{
+    content: "";
+    position: absolute;
+    width: 50%;
+    height: 2px;
+    bottom: 0;
+    left: 5%;
+    border-bottom: 1px solid rgb(0, 0, 0);
+}
