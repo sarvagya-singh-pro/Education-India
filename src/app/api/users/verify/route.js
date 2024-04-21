@@ -7,6 +7,7 @@ export async function POST(request){
     
     const reqBody = await request.json()
     const {otp}   = reqBody
+    console.log(otp)
     const token=request.cookies.get('token').value
     console.log(token)
     const user= await getUserData(token)

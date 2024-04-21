@@ -25,6 +25,6 @@ export const config = {
   matcher: [
     '/dashboard',
     '/auth',
-    '/verifyemail'
+    '/verify'
   ]
 }

@@ -4,6 +4,7 @@ import styles from './styles/auth.module.css'
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import OTPEntry from './OTPEntry';
 const Auth = (props) => {
     const router = useRouter()
     const[name,SetName]=useState("")
@@ -15,13 +16,23 @@ const Auth = (props) => {
     const[forgot,SetForgot]=useState("")
     const [mode,SetMode]=useState("signup")
     const[otpInput,SetInput]=useState(false)
+    const[otpInputText,SetInputText]=useState("")
+    
+    function handleOtp(data){
+      console.log(data)
+      SetInputText(data)
+    }
     return (
         <div>
-            <Modal opened={modalForgot} onClose={()=>{SetModalForgot(false)}}>
-              {otpInput?<><Text>Hello</Text></>:
+            <Modal opened={modalForgot} onClose={()=>{SetModalForgot(false);SetInputText("")}}>
+              {otpInput?<><Center><Text mb="md">Enter The OTP</Text></Center>
+              <OTPEntry otpParent={handleOtp} ></OTPEntry>
+              <Center><Button onClick={()=>{axios.post('/api/users/forgot',{phone:forgot,type:'otp',otp:otpInputText})}} mt="xl"  color='green'>Verify</Button></Center>
+              </>:
               <><Center><Text mb="md">Your Phone Number</Text></Center>
+              
               <Center><TextInput size='lg' onChange={(e)=>{SetForgot(e.target.value)}} value={forgot} placeholder='Number'/></Center>
-              <Center><Button color='green'>Verify</Button></Center>
+              <Center><Button onClick={()=>{axios.post('/api/users/forgot',{phone:forgot,type:'phone'}).then(()=>{SetInput(true)})}} color='green' mt="xl">Verify</Button></Center>
               </>}
             </Modal>
 
