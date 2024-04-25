@@ -1,5 +1,3 @@
-
-import { CssBaseline } from '@mui/material';
 import "./globals.css";
 import { createTheme, MantineProvider } from '@mantine/core'
 export const metadata = {
@@ -10,10 +8,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      < CssBaseline />
       <body>{
-       <MantineProvider theme={"dark"}>{children}</MantineProvider>
-       }</body>
+        <MantineProvider theme={"dark"}>{children}</MantineProvider>
+      }</body>
     </html>
   );
 }
