@@ -1,76 +1,121 @@
-import '@mantine/core/styles.css';
-import { Center, Input, Title,Text, Button, PasswordInput, Anchor, Modal, TextInput } from '@mantine/core';
-import styles from './styles/auth.module.css'
-import axios from 'axios';
-import { useRouter } from 'next/navigation';
+"use client"
 import { useState } from 'react';
-import OTPEntry from './OTPEntry';
-const Auth = (props) => {
-    const router = useRouter()
-    const[name,SetName]=useState("")
-    const [phone,SetPHONE]=useState("")
-    const [password,SetPASSWORD]=useState("")
-    const [phoneLogin,SetPHONELogin]=useState("")
-    const [passwordLogin,SetPasswordLogin]=useState("")
-    const[modalForgot,SetModalForgot]=useState(false)
-    const[forgot,SetForgot]=useState("")
-    const [mode,SetMode]=useState("signup")
-    const[otpInput,SetInput]=useState(false)
-    const[otpInputText,SetInputText]=useState("")
-    
-    function handleOtp(data){
-      console.log(data)
-      SetInputText(data)
-    }
-    return (
-        <div>
-            <Modal opened={modalForgot} onClose={()=>{SetModalForgot(false);SetInputText("")}}>
-              {otpInput?<><Center><Text mb="md">Enter The OTP</Text></Center>
-              <OTPEntry otpParent={handleOtp} ></OTPEntry>
-              <Center><Button onClick={()=>{axios.post('/api/users/forgot',{phone:forgot,type:'otp',otp:otpInputText})}} mt="xl"  color='green'>Verify</Button></Center>
-              </>:
-              <><Center><Text mb="md">Your Phone Number</Text></Center>
-              
-              <Center><TextInput size='lg' onChange={(e)=>{SetForgot(e.target.value)}} value={forgot} placeholder='Number'/></Center>
-              <Center><Button onClick={()=>{axios.post('/api/users/forgot',{phone:forgot,type:'phone'}).then(()=>{SetInput(true)})}} color='green' mt="xl">Verify</Button></Center>
-              </>}
-            </Modal>
+import { TabsTrigger, TabsList, TabsContent, Tabs } from '../components/ui/tabs';
+import { CardTitle, CardDescription, CardHeader, CardContent, CardFooter, Card } from '../components/ui/card';
+import { Label } from '../components/ui/label';
+import { Input } from '../components/ui/input';
+import { Button } from '../components/ui/button';
+import { DialogTrigger, DialogTitle, DialogDescription, DialogHeader, DialogFooter, DialogContent, Dialog } from '../components/ui/dialog';
+import Link from 'next/link';
 
-            <div className={styles.signup}>
-           {mode=="login"?<>
-           
-           <Center><Title className={styles.title} order={1} fw={"lighter"} mt="xl" >Login</Title></Center>
-           <Input onChange={(e)=>{SetPHONELogin(e.target.value)}}  ml={"50%"} value={phoneLogin}  w="80%" size={"xl"} style={{transform:'translateX(-50%)',boxShadow:'10px 10px  10px #ccc '}} leftSection={<><Text>+91 </Text></>} placeholder='Phone'  pattern="/^\d+$/"
-            mt="xl"></Input>
-              <PasswordInput  onChange={(e)=>{SetPasswordLogin(e.target.value)}} w="80%" value={passwordLogin} mt={"lg"} ml={"50%"} style={{transform:'translateX(-50%)',boxShadow:'10px 10px  10px #ccc '}} size={'xl'} placeholder='Password'></PasswordInput>
-              <Center> <Button mt={"xl"}  onClick={()=>{axios.post('/api/users/login',{
-            phone:phoneLogin,
-            password:passwordLogin
-          }).then(()=>{router.push('/dashboard')}).catch((err)=>{console.log(err)})}} variant="light" color="cyan" size="lg"> Log In </Button></Center>
-        <Center><Button mt="md" variant='light' onClick={()=>{SetModalForgot(true)}}>Forgot Password</Button></Center>
-              <Center><Text pt={"lg"}>Dont have An account? <Anchor underline='never' onClick={()=>{SetMode("signup")}} >Sign Up</Anchor> </Text></Center>
-        
-           
-           </>:
-          <>
-           <Center><Title className={styles.title} order={1} fw={"lighter"} mt="xl" > Sign Up</Title></Center>
-          <Input onChange={(e)=>{SetPHONE(e.target.value)}}  ml={"50%"} value={phone}  w="80%" size={"xl"} style={{transform:'translateX(-50%)',boxShadow:'10px 10px  10px #ccc '}} leftSection={<><Text>+91 </Text></>} placeholder='Phone'  pattern="/^\d+$/"
-            mt="xl"></Input>
-            <Input onChange={(e)=>{SetName(e.target.value)}}placeholder='Name' value={name} mt={"lg"} ml={"50%"} style={{transform:'translateX(-50%)',boxShadow:'10px 10px  10px #ccc '}} w="80%" size={'xl'}></Input>
-           <PasswordInput  onChange={(e)=>{SetPASSWORD(e.target.value)}} w="80%" value={password} mt={"lg"} ml={"50%"} style={{transform:'translateX(-50%)',boxShadow:'10px 10px  10px #ccc '}} size={'xl'} placeholder='Password'></PasswordInput>
-          <Center> <Button mt={"xl"}  onClick={()=>{axios.post('/api/users/signup',{
-            name,
-            phone,
-            password
-          }).then(()=>{router.push('/verify')}).catch(()=>{alert("sign up failed")})}} variant="light" color="cyan" size="lg"> Sign Up </Button></Center>
-           <Center><Text pt={"lg"}>Already Have an account? <Anchor underline='never' onClick={()=>{SetMode("login")}} >Login</Anchor> </Text></Center>
-           </>}
-           
-           </div>
-           <div className={styles.sideImg}></div>
+export default function Auth() {
+	const [email, setEmail] = useState('');
+	const [password, setPassword] = useState('');
+	const [phone, setPhone] = useState('');
+	const [otp, setOtp] = useState('');
+	const [isOtpDialogOpen, setIsOtpDialogOpen] = useState(false);
 
-           </div>
-    );
- }
- 
- export default Auth;
+	const handleSendResetCode = () => {
+		// Here you can add the logic to send the reset code to the phone number
+		// If the phone number is matched and the OTP is received, open the OTP dialog
+		setIsOtpDialogOpen(true);
+	};
+
+	return (
+		<main className="flex min-h-[calc(100vh)] items-center justify-center bg-gray-800 bg-[url('/authbg.png')] bg-cover px-4">
+			<div className="w-full max-w-md space-y-6">
+				<Tabs className="w-full" defaultValue="login">
+					<TabsList className="grid w-full grid-cols-2 bg-gray-400">
+						<TabsTrigger value="login">Login</TabsTrigger>
+						<TabsTrigger value="signup">Sign Up</TabsTrigger>
+					</TabsList>
+					<TabsContent value="login">
+						<Card>
+							<CardHeader>
+								<CardTitle>Welcome back</CardTitle>
+								<CardDescription>Enter your email and password to access your account.</CardDescription>
+							</CardHeader>
+							<CardContent className="space-y-4">
+								<div className="space-y-2">
+									<Label htmlFor="email">Email</Label>
+									<Input id="email" placeholder="name@example.com" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+								</div>
+								<div className="space-y-2">
+									<Label htmlFor="password">Password</Label>
+									<Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+								</div>
+							</CardContent>
+							<CardFooter className="flex items-center justify-between">
+								<Button type="submit">Sign in</Button>
+								<Dialog>
+									<DialogTrigger asChild>
+										<Link href="#" className="text-sm text-gray-500 hover:underline dark:text-gray-400">Forgot password?</Link>
+									</DialogTrigger>
+									<DialogContent className="sm:max-w-[425px]">
+										<DialogHeader>
+											<DialogTitle>Reset your password</DialogTitle>
+											<DialogDescription>Enter your phone number and we'll send you a code to reset your password.</DialogDescription>
+										</DialogHeader>
+										<div className="grid gap-4 py-4">
+											<div className="grid grid-cols-4 items-center gap-4">
+												<Label className="text-right" htmlFor="phone">Phone</Label>
+												<Input className="col-span-3" id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
+											</div>
+										</div>
+										<DialogFooter>
+											<Button type="submit" onClick={handleSendResetCode}>Send reset code</Button>
+										</DialogFooter>
+									</DialogContent>
+								</Dialog>
+							</CardFooter>
+						</Card>
+					</TabsContent>
+					<TabsContent value="signup">
+						<Card>
+							<CardHeader>
+								<CardTitle>Create an account</CardTitle>
+								<CardDescription>Enter your details to get started.</CardDescription>
+							</CardHeader>
+							<CardContent className="space-y-4">
+								<div className="space-y-2">
+									<Label htmlFor="name">Name</Label>
+									<Input id="name" placeholder="John Doe" />
+								</div>
+								<div className="space-y-2">
+									<Label htmlFor="email">Email</Label>
+									<Input id="email" placeholder="name@example.com" type="email" />
+								</div>
+								<div className="space-y-2">
+									<Label htmlFor="password">Password</Label>
+									<Input id="password" type="password" />
+								</div>
+							</CardContent>
+							<CardFooter>
+								<Button type="submit">Sign up</Button>
+							</CardFooter>
+						</Card>
+					</TabsContent>
+				</Tabs>
+			</div>
+
+			{isOtpDialogOpen && (
+				<Dialog>
+					<DialogContent className="sm:max-w-[425px]">
+						<DialogHeader>
+							<DialogTitle>Enter The OTP</DialogTitle>
+						</DialogHeader>
+						<div className="grid gap-4 py-4">
+							<div className="grid grid-cols-4 items-center gap-4">
+								<Label className="text-right" htmlFor="otp">OTP</Label>
+								<Input className="col-span-3" id="otp" type="tel" value={otp} onChange={(e) => setOtp(e.target.value)} />
+							</div>
+						</div>
+						<DialogFooter>
+							<Button type="submit">Verify OTP</Button>
+						</DialogFooter>
+					</DialogContent>
+				</Dialog>
+			)}
+		</main>
+	);
+}
