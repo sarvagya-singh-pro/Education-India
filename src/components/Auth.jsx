@@ -7,11 +7,15 @@ import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { DialogTrigger, DialogTitle, DialogDescription, DialogHeader, DialogFooter, DialogContent, Dialog } from '../components/ui/dialog';
 import Link from 'next/link';
+import axios from 'axios';
 
 export default function Auth() {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
+	const[phoneSignup,setPhoneSignup] = useState('');
 	const [phone, setPhone] = useState('');
+	const[name, setName] = useState('');
+	const[passwordSignup, setPasswordSignup] = useState('');
 	const [otp, setOtp] = useState('');
 	const [isOtpDialogOpen, setIsOtpDialogOpen] = useState(false);
 
@@ -37,8 +41,8 @@ export default function Auth() {
 							</CardHeader>
 							<CardContent className="space-y-4">
 								<div className="space-y-2">
-									<Label htmlFor="email">Email</Label>
-									<Input id="email" placeholder="name@example.com" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+									<Label htmlFor="email">Phone</Label>
+									<Input id="Phone"  type="text" value={email} onChange={(e) => setEmail(e.target.value)} pattern="\d{3}-\d{3}-\d{4}" />
 								</div>
 								<div className="space-y-2">
 									<Label htmlFor="password">Password</Label>
@@ -46,7 +50,7 @@ export default function Auth() {
 								</div>
 							</CardContent>
 							<CardFooter className="flex items-center justify-between">
-								<Button type="submit">Sign in</Button>
+								<Button type="submit" onClick={()=>{axios.post('/api/users/login',{email,password})}}>Sign in</Button>
 								<Dialog>
 									<DialogTrigger asChild>
 										<Link href="#" className="text-sm text-gray-500 hover:underline dark:text-gray-400">Forgot password?</Link>
@@ -79,19 +83,19 @@ export default function Auth() {
 							<CardContent className="space-y-4">
 								<div className="space-y-2">
 									<Label htmlFor="name">Name</Label>
-									<Input id="name" placeholder="John Doe" />
+									<Input id="name" value={name} onChange={(e)=>{setName(e.target.value)}} placeholder="John Doe" />
 								</div>
 								<div className="space-y-2">
 									<Label htmlFor="email">Email</Label>
-									<Input id="email" placeholder="name@example.com" type="email" />
+									<Input id="email" value={phoneSignup} onChange={(e)=>{setPhoneSignup(e.target.value)}} placeholder="name@example.com" type="email" />
 								</div>
 								<div className="space-y-2">
 									<Label htmlFor="password">Password</Label>
-									<Input id="password" type="password" />
+									<Input id="password" value={passwordSignup} onChange={(e)=>{setPasswordSignup(e.target.value)}} type="password" />
 								</div>
 							</CardContent>
 							<CardFooter>
-								<Button type="submit">Sign up</Button>
+								<Button onClick={()=>{axios.post('/api/users/signup',{name:name,phone:phoneSignup,password:passwordSignup})}} type="submit">Sign up</Button>
 							</CardFooter>
 						</Card>
 					</TabsContent>

@@ -17,6 +17,24 @@ model User {
   verifyTokenExpiration    DateTime?
   password                 String
   phone                    String    @unique
+  aadharNo                 String?
+  address                  String?
+  bloodGroup               String?
+  category                 String?
+  course                   String?
+  dateOfBirth              DateTime?
+  documents10th            String?
+  documents12th            String?
+  documentsGraduation      String?
+  email                    String?   @unique
+  fathersName              String?
+  identificationMark       String?
+  lastEducationPassingYear Int?
+  maritalStatus            String?
+  modeOpted                String?
+  mothersName              String?
+  session                  String?
+  university               String?
 }
 
 model university {
