@@ -1,5 +1,4 @@
 import { cookies } from 'next/headers'
-import Dashboard from '@/components/Dashboard'
 import { getUserData } from '@/helper/cookiedata';
 
 const page = async() => {
@@ -10,7 +9,7 @@ const page = async() => {
     return (
         <div>
 
-            <Dashboard verified={verified}/>
+            {/* <Dashboard verified={verified}/> */}
         </div>
     );
 }
