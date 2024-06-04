@@ -1,15 +1,13 @@
 import { cookies } from 'next/headers'
-import { getUserData } from '@/helper/cookiedata';
-
+import Dashboard from '../../components/Dashboard'
 const page = async() => {
-    const cookieStore = cookies()
+    const cookieStore=cookies()
     const token = cookieStore.get('token')
-    const verified=(await getUserData(token.value)).verified
-    console.log(verified)
+
     return (
         <div>
 
-            {/* <Dashboard verified={verified}/> */}
+            <Dashboard verified={token?true:false}/>
         </div>
     );
 }

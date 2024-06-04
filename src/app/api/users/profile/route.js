@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/app/database/prisma";
+import prisma from "../../../database/prisma";
 export  async function GET() {
         try {
             const universities = await prisma.university.findMany();

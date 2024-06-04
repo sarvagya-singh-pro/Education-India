@@ -2,7 +2,6 @@
 import { AppShell,Text, Burger, Button ,Group,Avatar, Loader, Center} from '@mantine/core'
 import { useEffect, useState } from 'react';
 import { MdNavigateNext } from "react-icons/md";
-import styles from './styles/profile.module.css'
 import '@mantine/core/styles.css';
 
 import { useRouter } from 'next/navigation';
@@ -56,16 +55,16 @@ else{
         
             <Text ml={"sm"}>College</Text>
             </Button>
-            <Group onClick={()=>{router.push('/profile')}} className={styles.menuOptioon}  pos={"absolute"} w="100%" left={"0px"} style={{borderTop:'1px solid white'}} bottom={"0px"} > 
+            <Group onClick={()=>{router.push('/profile')}}   pos={"absolute"} w="100%" left={"0px"} style={{borderTop:'1px solid white'}} bottom={"0px"} > 
             <Avatar mt="md" mb="md" radius="md"  ml={"md"}/>
             <Text c="#fff" mr={"xl"}>Profile</Text>
-            <MdNavigateNext color='#fff' className={styles.pointer}  size={"2rem"}/>
+            <MdNavigateNext color='#fff'  size={"2rem"}/>
     </Group>
       </AppShell.Navbar>
 
       <AppShell.Main>
         {
-          Object.keys(data).length==0?(<div className={styles.loader}>
+          Object.keys(data).length==0?(<div >
             <Loader/>
           </div>):(
             <Table  withColumnBorders stickyHeader stickyHeaderOffset={60}>
