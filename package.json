@@ -9,15 +9,30 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@next-auth/prisma-adapter": "^1.0.7",
+    "@prisma/client": "^6.0.1",
+    "@types/nodemailer": "^6.4.17",
+    "@types/react-dom": "^19.0.2",
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "next": "15.1.0",
+    "next-auth": "^4.24.11",
+    "nodemailer": "^6.9.16",
+    "otp-generator": "^4.0.1",
+    "prisma": "^6.0.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.1.0"
+    "react-icons": "^5.4.0",
+    "typescript": "^5.7.2"
   },
   "devDependencies": {
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
+    "@eslint/eslintrc": "^3",
+    "@types/react": "^19.0.1",
+    "autoprefixer": "^10.4.20",
     "eslint": "^9",
     "eslint-config-next": "15.1.0",
-    "@eslint/eslintrc": "^3"
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.16"
   }
 }
