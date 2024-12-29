@@ -65,8 +65,7 @@ export async function GET(req: Request) {
       { status: 200 }
     );
     response.cookies.set("authToken", userToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+  
       path: "/",
       maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
     });

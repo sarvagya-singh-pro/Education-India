@@ -1,6 +1,7 @@
 // app/api/auth/signup/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
+import crypto from "crypto"
 import prisma from '../../../../prisma/prisma'; // Adjust the path to your prisma client
 import {sendMail} from '../../../../components/email'
 const saltRounds = 10;
@@ -30,6 +31,8 @@ export async function POST(req: NextRequest) {
         password: hashedPassword,
       },
     });
+    let token=crypto.randomBytes(32).toString('hex');
+    console.log(token)
     const verification=await prisma.verificationToken.create({
       data:{
         token:token,

@@ -42,5 +42,5 @@ export async function middleware(req: NextRequest) {
 
 // Define which routes should be protected (e.g., dashboard, profile)
 export const config = {
-  matcher: ['/dashboard', '/profile/:path*'], // Match all routes under /dashboard and /profile
+  matcher: ['/dashboard/:path*', '/profile/:path*'], // Protect all routes under /dashboard and /profile
 };
