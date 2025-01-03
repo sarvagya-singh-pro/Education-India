@@ -1,11 +1,14 @@
-"use client"
-import { useState, useEffect } from "react";
+"use client";
+
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { FaBars, FaSignOutAlt, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import ApplicationForm from "../../components/AplicationForm";
-import Cookies from 'js-cookie';
-import jwt from 'jsonwebtoken';
-
+import Cookies from "js-cookie";
+import jwt from "jsonwebtoken";
+import prisma from "../../prisma/prisma";
+import axios from "axios";
+import CompleteProflie from '../../components/CompleteForm'
 // Function to check the authToken cookie
 const checkAuthToken = () => {
   return document.cookie.includes("authToken");
@@ -17,43 +20,63 @@ const Dashboard = () => {
   const [generalOpen, setGeneralOpen] = useState(false);
   const [docsOpen, setDocsOpen] = useState(false);
   const [userData, setUserData] = useState(null);
+  const [userID, setUserID] = useState("");
   const [profileComplete, setProfileComplete] = useState(false); // To track profile completion
   const [userEmail, setUserEmail] = useState(null); // Store user email
   const router = useRouter();
 
   // Check auth token and fetch user data
   useEffect(() => {
-   async function a(){
-    // Check if authToken exists in the cookies and redirect if not authenticated
-    const authToken = Cookies.get("authToken");
-    if (!authToken) {
-      router.push("/login");
-    } else {
-      setIsAuthenticated(true);
+    const initializeDashboard = async () => {
+      const authToken = Cookies.get("authToken");
 
-      // Decode the JWT token to extract the user email
-      const decodedToken =await jwt.decode(authToken,{complete:true}).payload
-      console.log(decodedToken)
-      setUserEmail(decodedToken.email); // Assuming email is in the payload
+      if (!authToken) {
+        router.push("/login");
+      } else {
+        setIsAuthenticated(true);
 
-      // Optionally, you can fetch the user data from your API if needed
-     
-    }
-}a()
+        // Decode the JWT token to extract user details
+        try {
+            console.log(authToken)
+          const decodedToken = jwt.decode(authToken);
+          if (decodedToken) {
+            console.log(decodedToken);
+            const user = (await axios.post('/api/user',{
+                id:decodedToken.id
+            })).data.user
+            
+            if(user?.profileCompleted){
+                setProfileComplete(true)
+            }
+            setUserEmail(decodedToken.email); // Assuming email is in the payload
+            setUserID(decodedToken.id);
+          } else {
+            console.error("Invalid token");
+          }
+        } catch (error) {
+          console.error("Error decoding token:", error);
+        }
+      }
+    };
+
+    initializeDashboard();
   }, [router]);
 
   const handleLogout = async () => {
-    // Clear the authToken cookie and redirect to the login page
-    await fetch('/api/auth/logout');
-    Cookies.remove("authToken"); // Remove the authToken cookie
-    router.push("/login");
+    try {
+      await fetch("/api/auth/logout");
+      Cookies.remove("authToken");
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-auto bg-gray-100">
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 z-30 h-full w-64 bg-gray-800 text-white transform transition-transform duration-300 ${
+        className={`fixed top-0 left-0 z-3 h-auto w-64 bg-gray-800 text-white transform transition-transform duration-300 ${
           isDrawerOpen ? "translate-x-0" : "-translate-x-full"
         } md:relative md:translate-x-0 md:w-64`}
       >
@@ -171,8 +194,8 @@ const Dashboard = () => {
         {/* Main Dashboard Content */}
         <main className="flex-1 bg-gray-100 p-6">
           <h1 className="text-3xl font-semibold text-gray-800">Welcome to your Dashboard</h1>
-
-          <ApplicationForm />
+              {!profileComplete?
+          <ApplicationForm id={userID} />:<CompleteProflie id={userID}/>}
           {/* Add your dashboard content here */}
           <div className="mt-6">
             <h2 className="text-xl font-semibold">Recent Activity</h2>

@@ -1,10 +1,16 @@
-'use client';
+'use client'
 
-import { useState } from "react";
-import axios from "axios"; // Assuming you use Axios for making GET requests
+import { useState } from "react"
+import axios from "axios"
+import {useRouter} from 'next/navigation'
+interface ApplicationFormProps {
+  id: string
+}
+const ApplicationForm = ({ id }: ApplicationFormProps) => {
 
-const ApplicationForm = () => {
-  const [step, setStep] = useState(1); // Track the current step
+const route=useRouter()
+  const [step, setStep] = useState(1)
+  const [showButton, setShowButton] = useState<boolean>(false)
   const [formData, setFormData] = useState({
     fatherName: "",
     motherName: "",
@@ -31,145 +37,145 @@ const ApplicationForm = () => {
       aadharPhotoBack: "",
       passportPhoto: "",
       signature: "",
-      thumbImpression: "",
+      thumbImpression: ""
     },
-    verificationCode: "", // Field for entering the verification code
-    isVerified: false, // Whether the phone number is verified
-  });
+    verificationCode: "",
+    isVerified: false
+  })
 
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [smsSent, setSmsSent] = useState(false); // Track if SMS was sent
+  const [errors, setErrors] = useState<{ [key: string]: string }>({})
+  const [smsSent, setSmsSent] = useState(false)
 
-  // Handler for input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setFormData((prevData) => ({
       ...prevData,
-      [name]: value,
-    }));
-  };
+      [name]: value
+    }))
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
-    const file = e.target.files?.[0];
+    const file = e.target.files?.[0]
     if (file) {
       setFormData((prevData) => ({
         ...prevData,
         documents: {
           ...prevData.documents,
-          [field]: file,
-        },
-      }));
+          [field]: file
+        }
+      }))
     }
-  };
+  }
 
-  // Validation function
   const validateStep = (step: number) => {
-    let currentErrors: { [key: string]: string } = {};
+    let currentErrors: { [key: string]: string } = {}
     
     switch (step) {
       case 1:
-        if (!formData.fatherName) currentErrors.fatherName = "Father's name is required";
-        if (!formData.motherName) currentErrors.motherName = "Mother's name is required";
-        if (!formData.dob) currentErrors.dob = "Date of birth is required";
-        break;
+        if (!formData.fatherName) currentErrors.fatherName = "Father's name is required"
+        if (!formData.motherName) currentErrors.motherName = "Mother's name is required"
+        if (!formData.dob) currentErrors.dob = "Date of birth is required"
+        break
       case 2:
-        if (!formData.course) currentErrors.course = "Course is required";
+        if (!formData.course) currentErrors.course = "Course is required"
         if (!formData.session) {
-          currentErrors.session = "Session is required";
+          currentErrors.session = "Session is required"
         } else if (isNaN(Number(formData.session))) {
-          currentErrors.session = "Session must be a number";
+          currentErrors.session = "Session must be a number"
         }
-        if (!formData.university) currentErrors.university = "University is required";
-        break;
+        if (!formData.university) currentErrors.university = "University is required"
+        if (!formData.passingYear) currentErrors.passingYear = "Passing year is required"
+        if (!formData.modeOpted) currentErrors.modeOpted = "Mode opted is required"
+        break
       case 3:
-        if (!formData.mobile) currentErrors.mobile = "Mobile is required";
+        if (!formData.mobile) currentErrors.mobile = "Mobile is required"
         else if (!/^\d{10}$/.test(formData.mobile)) {
-          currentErrors.mobile = "Mobile must be a 10-digit number";
+          currentErrors.mobile = "Mobile must be a 10-digit number"
         }
-        if (!formData.category) currentErrors.category = "Category is required";
-        if (!formData.address) currentErrors.address = "Address is required";
-        if (!formData.bloodGroup) currentErrors.bloodGroup = "Blood group is required";
-        if (!formData.idMark) currentErrors.idMark = "Identification mark is required";
-        if (!formData.maritalStatus) currentErrors.maritalStatus = "Marital status is required";
-        if (!formData.aadharNo) currentErrors.aadharNo = "Aadhar number is required";
-        if (!formData.passingYear) currentErrors.passingYear = "Passing year is required";
-        if (!formData.modeOpted) currentErrors.modeOpted = "Mode opted is required";
-        break;
+        if (!formData.category) currentErrors.category = "Category is required"
+        if (!formData.address) currentErrors.address = "Address is required"
+        if (!formData.bloodGroup) currentErrors.bloodGroup = "Blood group is required"
+        if (!formData.idMark) currentErrors.idMark = "Identification mark is required"
+        if (!formData.maritalStatus) currentErrors.maritalStatus = "Marital status is required"
+        if (!formData.aadharNo) currentErrors.aadharNo = "Aadhar number is required"
+        break
       case 4:
         Object.keys(formData.documents).forEach((key) => {
-          if (!formData.documents[key]) currentErrors[key] = `${key} is required`;
-        });
-        break;
+          if (!formData.documents[key]) currentErrors[key] = `${key} is required`
+        })
+        break
       default:
-        break;
+        break
     }
     
-    setErrors(currentErrors);
-    return Object.keys(currentErrors).length === 0; // returns true if no errors
-  };
+    setErrors(currentErrors)
+    return Object.keys(currentErrors).length === 0
+  }
 
-  // Send SMS Verification Code
   const sendVerificationSms = async () => {
     try {
-      const response = await axios.get(`/api/send-sms`, {
-        params: { phoneNumber: formData.mobile },
-      });
+      const response = await axios.post("/api/auth/send-otp", {
+        phoneNumber: formData.mobile,
+        id: id      
+      })
 
       if (response.data.success) {
-        setSmsSent(true);
-        alert('Verification code sent. Please check your phone.');
-      } else {
-        alert('Failed to send verification code.');
+        setSmsSent(true)
+         } else {
+        alert('Failed to send verification code.')
       }
     } catch (error) {
-      alert('Failed to send verification code.');
+      alert('Failed to send verification code.')
     }
-  };
+  }
 
-  // Verify the entered code
   const verifyCode = async () => {
     try {
       const response = await axios.post(`/api/verify-code`, {
         phoneNumber: formData.mobile,
         code: formData.verificationCode,
-      });
-
+        id: id
+      })
+      
       if (response.data.success) {
         setFormData((prevData) => ({
           ...prevData,
-          isVerified: true,
-        }));
-        alert('Phone number verified successfully!');
+          isVerified: true
+        }))
+        setShowButton(true)
+        alert('Phone number verified successfully!')
       } else {
-        alert('Invalid verification code.');
+        alert('Invalid verification code.')
       }
     } catch (error) {
-      alert('Verification failed.');
+      alert('Verification failed.')
     }
-  };
+  }
 
-  // Step Navigation Handlers
   const nextStep = () => {
     if (validateStep(step)) {
-      setStep((prev) => prev + 1);
+      setStep((prev) => prev + 1)
     }
-  };
+  }
 
-  const prevStep = () => setStep((prev) => prev - 1);
+  const prevStep = () => setStep((prev) => prev - 1)
 
-  // Submit handler
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (validateStep(step)) {
-      console.log(formData); // You can send this data to an API
-    }
-  };
+  const handleSubmit = async(e: React.FormEvent) => {
+    console.log(formData)
+    const nformData=JSON.parse(JSON.stringify(formData))
+    nformData["id"]=id
+    await axios.post('/api/user/update',nformData)
+    route.replace('/dashboard').then(()=>{
+        route.refresh()
+
+    })
+    
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-4 text-black">
       <h2 className="text-2xl font-semibold text-center">Degree Application Form</h2>
-      <form onSubmit={handleSubmit} className="mt-6">
-        {/* Step 1: Personal Information */}
+      <form className="mt-6">
         {step === 1 && (
           <div>
             <h3 className="text-lg font-semibold mb-4">Personal Information</h3>
@@ -215,7 +221,6 @@ const ApplicationForm = () => {
           </div>
         )}
 
-        {/* Step 2: Academic Details */}
         {step === 2 && (
           <div>
             <h3 className="text-lg font-semibold mb-4">Academic Information</h3>
@@ -258,10 +263,35 @@ const ApplicationForm = () => {
               />
               {errors.university && <span className="text-red-600">{errors.university}</span>}
             </div>
+            <div className="mb-4">
+              <label htmlFor="passingYear" className="block text-lg">Passing Year</label>
+              <input
+                type="number"
+                id="passingYear"
+                name="passingYear"
+                value={formData.passingYear}
+                onChange={handleChange}
+                required
+                className="w-full p-2 border border-gray-300 rounded"
+              />
+              {errors.passingYear && <span className="text-red-600">{errors.passingYear}</span>}
+            </div>
+            <div className="mb-4">
+              <label htmlFor="modeOpted" className="block text-lg">Mode Opted</label>
+              <input
+                type="text"
+                id="modeOpted"
+                name="modeOpted"
+                value={formData.modeOpted}
+                onChange={handleChange}
+                required
+                className="w-full p-2 border border-gray-300 rounded"
+              />
+              {errors.modeOpted && <span className="text-red-600">{errors.modeOpted}</span>}
+            </div>
           </div>
         )}
 
-        {/* Step 3: Contact Information */}
         {step === 3 && (
           <div>
             <h3 className="text-lg font-semibold mb-4">Contact Information</h3>
@@ -278,71 +308,174 @@ const ApplicationForm = () => {
               />
               {errors.mobile && <span className="text-red-600">{errors.mobile}</span>}
             </div>
-
             <div className="mb-4">
-              <button
-                type="button"
-                onClick={sendVerificationSms}
-                className="bg-blue-600 text-white px-4 py-2 rounded"
-                disabled={smsSent}
-              >
-                Send Verification Code
-              </button>
-              {smsSent && (
+              <label htmlFor="category" className="block text-lg">Category</label>
+              <input
+                type="text"
+                id="category"
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+                required
+                className="w-full p-2 border border-gray-300 rounded"
+              />
+              {errors.category && <span className="text-red-600">{errors.category}</span>}
+            </div>
+            <div className="mb-4">
+              <label htmlFor="address" className="block text-lg">Address</label>
+              <input
+                type="text"
+                id="address"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                required
+                className="w-full p-2 border border-gray-300 rounded"
+              />
+              {errors.address && <span className="text-red-600">{errors.address}</span>}
+            </div>
+            <div className="mb-4">
+              <label htmlFor="bloodGroup" className="block text-lg">Blood Group</label>
+              <input
+                type="text"
+                id="bloodGroup"
+                name="bloodGroup"
+                value={formData.bloodGroup}
+                onChange={handleChange}
+                required
+                className="w-full p-2 border border-gray-300 rounded"
+              />
+              {errors.bloodGroup && <span className="text-red-600">{errors.bloodGroup}</span>}
+            </div>
+            <div className="mb-4">
+              <label htmlFor="idMark" className="block text-lg">Identification Mark</label>
+              <input
+                type="text"
+                id="idMark"
+                name="idMark"
+                value={formData.idMark}
+                onChange={handleChange}
+                required
+                className="w-full p-2 border border-gray-300 rounded"
+              />
+              {errors.idMark && <span className="text-red-600">{errors.idMark}</span>}
+            </div>
+            <div className="mb-4">
+              <label htmlFor="maritalStatus" className="block text-lg">Marital Status</label>
+              <input
+                type="text"
+                id="maritalStatus"
+                name="maritalStatus"
+                value={formData.maritalStatus}
+                onChange={handleChange}
+                required
+                className="w-full p-2 border border-gray-300 rounded"
+              />
+              {errors.maritalStatus && <span className="text-red-600">{errors.maritalStatus}</span>}
+            </div>
+            <div className="mb-4">
+              <label htmlFor="aadharNo" className="block text-lg">Aadhar Number</label>
+              <input
+                type="text"
+                id="aadharNo"
+                name="aadharNo"
+                value={formData.aadharNo}
+                onChange={handleChange}
+                required
+                className="w-full p-2 border border-gray-300 rounded"
+              />
+              {errors.aadharNo && <span className="text-red-600">{errors.aadharNo}</span>}
+            </div>
+            <div className="mb-4">
+              {smsSent ? (
                 <div>
+                  <label htmlFor="verificationCode" className="block text-lg">Enter OTP</label>
                   <input
                     type="text"
+                    id="verificationCode"
                     name="verificationCode"
-                    placeholder="Enter Verification Code"
                     value={formData.verificationCode}
                     onChange={handleChange}
-                    className="w-full p-2 border border-gray-300 rounded mt-2"
+                    required
+                    className="w-full p-2 border border-gray-300 rounded"
                   />
+                  {errors.verificationCode && <span className="text-red-600">{errors.verificationCode}</span>}
                   <button
                     type="button"
                     onClick={verifyCode}
-                    className="bg-green-600 text-white px-4 py-2 rounded mt-2"
+                    className="mt-2 p-2 bg-blue-500 text-white rounded"
                   >
                     Verify Code
                   </button>
                 </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={sendVerificationSms}
+                  className="p-2 bg-green-500 text-white rounded"
+                >
+                  Send OTP
+                </button>
               )}
-              {errors.mobile && <span className="text-red-600">{errors.mobile}</span>}
             </div>
           </div>
         )}
 
-        {/* Step 4: Document Upload */}
-        {step === 4 && (
+{step === 4 && (
           <div>
             <h3 className="text-lg font-semibold mb-4">Document Upload</h3>
-            {/* Document Upload Fields */}
-            {Object.keys(formData.documents).map((key) => (
-              <div key={key} className="mb-4">
-                <label className="block text-lg">{key}</label>
-                <input
-                  type="file"
-                  name={key}
-                  onChange={(e) => handleFileChange(e, key)}
-                  className="p-2 border border-gray-300 rounded"
-                />
-                {errors[key] && <span className="text-red-600">{errors[key]}</span>}
-              </div>
-            ))}
+            <div className="mb-4">
+              <label className="block text-lg">Upload 10th Marksheet</label>
+              <input
+                type="file"
+                onChange={(e) => handleFileChange(e, "tenthMarksheet")}
+                className="w-full p-2 border border-gray-300 rounded"
+              />
+              {errors.tenthMarksheet && <span className="text-red-600">{errors.tenthMarksheet}</span>}
+            </div>
+            {/* Add other file upload fields similarly */}
           </div>
         )}
 
-        <div className="flex justify-between">
-          <button type="button" onClick={prevStep} disabled={step === 1} className="bg-gray-300 px-4 py-2 rounded">
-            Previous
-          </button>
-          <button
-            type="button"
-            onClick={nextStep}
-            className="bg-blue-600 text-white px-4 py-2 rounded"
-          >
-            {step === 4 ? 'Submit' : 'Next'}
-          </button>
+        <div className="flex justify-between mt-6">
+          {step > 1 && (
+            <button
+              type="button"
+              onClick={prevStep}
+              className="p-2 bg-gray-500 text-white rounded"
+            >
+              Previous
+            </button>
+          )}
+          <div>
+            {step < 3    && (
+              <button
+                type="button"
+                onClick={nextStep}
+                className="p-2  bg-blue-500 text-white rounded"
+              >
+                Next
+              </button>
+            )}
+            {
+                !showButton?<></>:
+                <button
+                type="button"
+                onClick={()=>{handleSubmit(formData)}}
+                className="p-2 ml-96 bg-green-500 text-white rounded"
+              >
+                Submit
+              </button>
+            }
+            {step === 4 && formData.isVerified && (
+              <button
+                type="submit"
+                className="p-2 bg-green-500 text-white rounded"
+              >
+                Submit
+              </button>
+            )}
+          </div>
         </div>
       </form>
     </div>

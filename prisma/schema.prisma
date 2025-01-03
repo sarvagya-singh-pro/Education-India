@@ -18,7 +18,25 @@ model User {
   image             String?
   accounts          Account[]
   sessions          Session[]
+  aadharNo              String?    @unique
+  address               String?
+  bloodGroup            String?
+  
+  category              String?
+  course                String?
+  dob                   DateTime?
+  fatherName            String?
+  motherName            String?
+   maritalStatus         String?
+  idMark                String?
   VerificationToken VerificationToken[]
+   session               String?
+  university            String?
+  documents             Documents? @relation(fields: [documentsId], references: [id])
+  documentsId           String?    @unique
+
+  createdAt             DateTime?   @default(now())
+  updatedAt             DateTime ?  @updatedAt
 }
 
 model Account {
@@ -34,13 +52,29 @@ model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique
   userId       String
-  expires      DateTime
+  expires      DateTime @db.Timestamp(0)
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model VerificationToken {
-  id        String   @id @default(cuid())
+  id        String    @default(cuid())
   token     String @unique
   user      User   @relation(fields: [id], references: [id])
   expires   DateTime
+}
+
+model Documents {
+  id                     String    @id @default(uuid())
+  tenthMarksheet         String?
+  twelfthMarksheet       String?
+  graduationMarksheet    String?
+  lastDegreeCertificate  String?
+  technicalQualifications String?
+  
+  student               User?
+
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+
+  @@map("documents")
 }
