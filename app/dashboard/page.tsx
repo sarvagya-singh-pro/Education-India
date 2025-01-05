@@ -9,6 +9,7 @@ import jwt from "jsonwebtoken";
 import prisma from "../../prisma/prisma";
 import axios from "axios";
 import CompleteProflie from '../../components/CompleteForm'
+import Colleges from "../../components/College";
 // Function to check the authToken cookie
 const checkAuthToken = () => {
   return document.cookie.includes("authToken");
@@ -194,8 +195,11 @@ const Dashboard = () => {
         {/* Main Dashboard Content */}
         <main className="flex-1 bg-gray-100 p-6">
           <h1 className="text-3xl font-semibold text-gray-800">Welcome to your Dashboard</h1>
+         
               {!profileComplete?
           <ApplicationForm id={userID} />:<CompleteProflie id={userID}/>}
+           {!profileComplete?
+         <></>:<Colleges id={userID}/>}
           {/* Add your dashboard content here */}
           <div className="mt-6">
             <h2 className="text-xl font-semibold">Recent Activity</h2>
