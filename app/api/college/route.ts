@@ -25,6 +25,12 @@ export async function GET(request: Request) {
                     include:{
                         user:true
                     }
+                },
+                enrollments:{
+                    include:{
+                        user:true
+
+                    }
                 }
             }
          

@@ -8,7 +8,7 @@ const CollegeDashboard = () => {
   const [info, SetInfo] = useState(null);
   const [modalVisible, setModalVisible] = useState(false); // Modal visibility state
   const [modalMessage, setModalMessage] = useState(""); // Modal message
-
+  const [message,SetMessage]=useState("")
   useEffect(() => {
     async function fetchCollegeInfo() {
       try {
@@ -20,7 +20,7 @@ const CollegeDashboard = () => {
             id: decodedToken,
           });
           SetInfo(res.data.college);
-          console.log(res.data.college.applications);
+          console.log(res.data.college);
         }
       } catch (error) {
         console.error("Error fetching college info:", error);
@@ -29,11 +29,13 @@ const CollegeDashboard = () => {
     fetchCollegeInfo();
   }, []);
 
-  const handleApprove = async (collegeID, userID) => {
+  const handleApprove = async (collegeID, userID, applicationID) => {
     try {
+      console.log(applicationID);
       const res = await axios.post("/api/college/enroll", {
         collegeID,
         id: userID,
+        applicationId: applicationID,
       });
       console.log(res);
       setModalMessage("Student Accepted"); // Set the modal message
@@ -159,7 +161,7 @@ const CollegeDashboard = () => {
                       <td className="px-6 py-3 text-black">{el.status}</td>
                       <td className="px-6 py-3">
                         <button
-                          onClick={() => handleApprove(info.id, el.user.id)}
+                          onClick={() => handleApprove(info.id, el.user.id, el.id)}
                           className="bg-green-500 text-white px-4 py-1 rounded-lg hover:bg-green-600"
                         >
                           Approve
@@ -183,8 +185,72 @@ const CollegeDashboard = () => {
             </table>
           </div>
         </div>
+
+        {/* Enrolled Students Section */}
+        <div className="bg-white shadow-md rounded-lg p-6">
+          <h2 className="text-xl font-bold text-black mb-4">Enrolled Students</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-green-500 text-white">
+                  <th className="px-6 py-3">Name</th>
+                  <th className="px-6 py-3">Course</th>
+                  <th className="px-6 py-3">Enrollment Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {info?.enrollments?.length > 0 ? (
+                  info.enrollments.map((student, index) => (
+                    <tr key={index} className="border-t hover:bg-gray-100">
+                      <td className="px-6 py-3 text-black">{student.user.email}</td>
+                      <td className="px-6 py-3 text-black">Btech. CSE</td>
+                      <td className="px-6 py-3 text-black">
+                        {new Date(student.enrolledAt
+).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="3">
+                      <h1 className="text-center text-gray-500">
+                        No Enrolled Students
+                      </h1>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+            
+          </div>
+        </div>
+        
       </main>
+      <div className="bg-white shadow-md rounded-lg p-6 mb-8">
+  <h2 className="text-xl font-bold text-black mb-4">Broadcast Message</h2>
+
+  {/* Textarea for input */}
+  <textarea
+    className="w-full text-black p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+    rows="4"
+    value={message}
+    onChange={(e)=>{SetMessage(e.target.value)}}
+    placeholder="Type your message here..."
+  ></textarea>
+
+  {/* Broadcast Button */}
+  <div className="mt-4 text-right">
+    <button
+      onClick={async() =>{await axios.post('/api/college/broadcast',{collegeName:info?.name,message:message})} } // You can replace this with actual functionality
+      className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+    >
+      Broadcast
+    </button>
+  </div>
+</div>
+
     </div>
+    
   );
 };
 
